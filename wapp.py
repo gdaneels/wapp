@@ -70,7 +70,10 @@ def generate_report(df, suffix=None):
 
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    path = "data/stats-c-fullspeed.log"
+
+    import sys
+    path = str(sys.argv[1])
+
     parse(data_file=path)
 
     # first convert it to a Pandas dataframe for easy manipulation and plotting
