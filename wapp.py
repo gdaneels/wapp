@@ -65,12 +65,28 @@ def parse_data_files(configuration):
             raise Exception(f"Data file {file} does not exist.")
     return data_files
 
+def make_output_dir(path_json):
+    output_dir_path = "output/"
+    output_dir_path += os.path.basename(path_json).split(".")[0]
+    if not os.path.exists(output_dir_path):
+        os.makedirs(output_dir_path)
+    else:
+        raise Exception(f"Could not create output directory {output_dir_path}.")
+    return output_dir_path
+
+def generate_reports(configuration):
+
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
     import sys
     path_json = str(sys.argv[1])
-   
+    if not os.path.exists(path_json):
+        raise Exception(f"Input JSON {path_json} does not exist.")
+
+    # make output dir
+    output_dir_path = make_output_dir(path_json)
+    print(f"Created output directory at path {output_dir_path}.")
     # transform json configuration to Python dict
     configuration = parse_json(path=path_json)
     print("Parsed JSON configuration.")

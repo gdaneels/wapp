@@ -1,0 +1,32 @@
+{
+    "data/stats-dotnet-fullspeed.log":[
+        {
+            "parse_function":"parse_cpu",
+            "metric":"cpu_usage",
+            "report":1
+        }
+    ],
+    "data/stats-c-fullspeed.log":[
+        {
+            "parse_function":"parse_cpu",
+            "metric":"cpu_usage",
+            "report":1
+        }
+    ],
+    "data/tcp-server-2023_09_20_02_46_PM-dotnet-fullspeed.log":[
+        {
+            "parse_timestamp":"parse_timestamp",
+            "parse_function":"parse_mbps_milliseconds",
+            "metric":"throughput",
+            "report":1
+        }
+    ],
+    "data/tcp-server-2023_09_20_02_58_PM-c-fullspeed.log":[
+        {
+            "parse_timestamp":"parse_timestamp",
+            "parse_function":"parse_mbps_microseconds",
+            "metric":"throughput",
+            "report":1
+        }
+    ]
+}
