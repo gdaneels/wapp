@@ -77,7 +77,6 @@ def generate_report(output_dir_path, report_name, df, data_file, metric):
 def generate_reports(full_configuration, output_dir_path, df):
     for data_file, parse_configuration in full_configuration.items():
         for config in parse_configuration:
-            print(config)
             if "report" in config and config["report"] is not None:
                 metric = config["metric"]
                 print(f"Generating report for metric \"{metric}\" in data file \"{data_file}\".")
