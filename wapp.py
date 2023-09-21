@@ -1,10 +1,9 @@
-import re
 import seaborn as sns
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
-from datetime import datetime
 import os
+from datetime import datetime
 import json
 import parse_functions
 
@@ -19,24 +18,19 @@ def parse(path, parse_config):
     with open(path, errors='ignore') as f:
         for line in f:
             for parse_info in parse_config:
+                # parse timestamp
+                timestamp = None
+                if "parse_timestamp" in parse_info:
+                    parse_timestamp = parse_info["parse_timestamp"]
+                    timestamp = getattr(parse_functions, parse_timestamp)(line)
+
+                # parse metric
                 parse_function = parse_info["parse_function"]
                 metric = parse_info["metric"]
                 metric_val = getattr(parse_functions, parse_function)(line)
                 if metric_val:
-                    parsed_data.append({"timestamp": None, "file": path, "metric": metric, "value": metric_val})
-
-             
-            # timestamp = parse_timestamp(line)
-            # print(timestamp)
-            # mbps = parse_mbps_milliseconds(line)
-            # mbps = parse_mbps_microseconds(line)
-            # if mbps:
-            #     parsed_data.append({"timestamp": timestamp, "file": data_file, "metric": "mbps", "value": mbps})
-            # print(mbps)
-            # cpu_usage = parse_cpu(line)
-            # parsed_data.append({"timestamp": None, "file": path, "metric": "cpu_usage", "value": cpu_usage})
-            # virtual_memory_usage = parse_virtual_memory_usage(line)
-            # parsed_data.append({"timestamp": None, "file": path, "metric": "virtual_memory_usage", "value": virtual_memory_usage})
+                    parsed_data.append({"timestamp": timestamp, "file": path, "metric": metric, "value": metric_val})
+    print("Parsing done.")
 
 def generate_report(df, suffix=None):
     dir_report = "./reports"
@@ -79,14 +73,14 @@ if __name__ == "__main__":
    
     # transform json configuration to Python dict
     configuration = parse_json(path=path_json)
-    print("> Parsed JSON configuration.")
+    print("Parsed JSON configuration.")
     data_files = parse_data_files(configuration)
-    print("> Parsed and checked data files.")
+    print("Parsed and checked data files.")
     for data_file in data_files:
         parse(path=data_file, parse_config=configuration[data_file])
     # parse(data_file=path)
 
     # first convert it to a Pandas dataframe for easy manipulation and plotting
     df = pd.DataFrame.from_records(parsed_data)
-    print(df.to_string())
+    # print(df.to_string())
     # generate_report(df.drop('timestamp', axis=1, inplace=False), current_timestamp)

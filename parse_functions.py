@@ -1,3 +1,5 @@
+import re
+from datetime import datetime
 
 def parse_timestamp(line):
     timestamp_pattern = re.compile("\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}")
@@ -6,7 +8,7 @@ def parse_timestamp(line):
         return datetime.strptime(str(match.group(0)), '%Y-%m-%d %H:%M:%S')
     else:
         # print("Didn't find correct timestamp in line: {0}".format(line.strip()))
-        return None
+        raise Exception(f"Could not parse timestamp in line: {line}")
 
 def parse_cpu(line):
     str_cpu_usage = line.strip().split()[6]
