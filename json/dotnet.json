@@ -3,14 +3,14 @@
         {
             "parse_function":"parse_cpu",
             "metric":"cpu_usage",
-            "report":1
+            "report":"cpu_dotnet_fullspeed"
         }
     ],
     "data/stats-c-fullspeed.log":[
         {
             "parse_function":"parse_cpu",
             "metric":"cpu_usage",
-            "report":1
+            "report":"cpu_c_fullspeed"
         }
     ],
     "data/tcp-server-2023_09_20_02_46_PM-dotnet-fullspeed.log":[
