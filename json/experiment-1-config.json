@@ -1,0 +1,8 @@
+{
+    "data/stats-dotnet-fullspeed.log":[
+        {
+            "parse_function":"parse_cpu",
+            "metric":"cpu_usage"
+        }
+    ]
+}

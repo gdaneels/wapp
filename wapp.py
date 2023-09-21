@@ -5,77 +5,38 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime
 import os
+import json
+import parse_functions
 
 sns.set_style("ticks")
 sns.despine()
 
 parsed_data = []
 
-def parse_timestamp(line):
-    timestamp_pattern = re.compile("\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}")
-    match = timestamp_pattern.search(line)
-    if match:
-        return datetime.strptime(str(match.group(0)), '%Y-%m-%d %H:%M:%S')
-    else:
-        # print("Didn't find correct timestamp in line: {0}".format(line.strip()))
-        return None
-
-def parse_cpu(line):
-    str_cpu_usage = line.strip().split()[6]
-
-    if str_cpu_usage[-1] != "%":
-        raise Exception("Could not find CPU usage.")
-
-    cpu_usage = float(str_cpu_usage.split("%")[0])
-    return cpu_usage
-
-def parse_virtual_memory_usage(line):
-    str_mem_usage = line.strip().split()[5]
-
-    if str_mem_usage[-1] != "%":
-        raise Exception("Could not find virtual memory usage.")
-
-    mem_usage = float(str_mem_usage.split("%")[0])
-    return mem_usage
-
-def parse_mbps_milliseconds(line):
-    pattern = re.compile("Throughput (\d+) bytes in the last (\d+) milliseconds.")
-    is_match = pattern.search(line)
-    if (is_match):
-        bytes = float(is_match.group(1))
-        ms = float(is_match.group(2))
-        mbps = ((bytes * 8.0 / ms) * 1000.0) / 1000.0 / 1000.0
-        # print(f"bytes = {bytes}, ms = {ms}, mbps = {mbps}")
-        return mbps
-    else:
-        return None
-
-def parse_mbps_microseconds(line):
-    pattern = re.compile("Throughput (\d+) bytes in the last (\d+) microseconds.")
-    is_match = pattern.search(line)
-    if (is_match):
-        bytes = float(is_match.group(1))
-        ms = float(is_match.group(2))
-        mbps = ((bytes * 8.0 / ms) * 1000000.0) / 1000.0 / 1000.0
-        # print(f"bytes = {bytes}, ms = {ms}, mbps = {mbps}")
-        return mbps
-    else:
-        return None
-
-def parse(data_file):
-    with open(data_file, errors='ignore') as f:
+def parse(path, parse_config):
+    print(f"Parsing file {path} with following configuration:")
+    print(json.dumps(parse_config, indent=4))
+    with open(path, errors='ignore') as f:
         for line in f:
-            timestamp = parse_timestamp(line)
+            for parse_info in parse_config:
+                parse_function = parse_info["parse_function"]
+                metric = parse_info["metric"]
+                metric_val = getattr(parse_functions, parse_function)(line)
+                if metric_val:
+                    parsed_data.append({"timestamp": None, "file": path, "metric": metric, "value": metric_val})
+
+             
+            # timestamp = parse_timestamp(line)
             # print(timestamp)
             # mbps = parse_mbps_milliseconds(line)
             # mbps = parse_mbps_microseconds(line)
             # if mbps:
             #     parsed_data.append({"timestamp": timestamp, "file": data_file, "metric": "mbps", "value": mbps})
             # print(mbps)
-            cpu_usage = parse_cpu(line)
-            parsed_data.append({"timestamp": None, "file": data_file, "metric": "cpu_usage", "value": cpu_usage})
-            virtual_memory_usage = parse_virtual_memory_usage(line)
-            parsed_data.append({"timestamp": None, "file": data_file, "metric": "virtual_memory_usage", "value": virtual_memory_usage})
+            # cpu_usage = parse_cpu(line)
+            # parsed_data.append({"timestamp": None, "file": path, "metric": "cpu_usage", "value": cpu_usage})
+            # virtual_memory_usage = parse_virtual_memory_usage(line)
+            # parsed_data.append({"timestamp": None, "file": path, "metric": "virtual_memory_usage", "value": virtual_memory_usage})
 
 def generate_report(df, suffix=None):
     dir_report = "./reports"
@@ -97,15 +58,35 @@ def generate_report(df, suffix=None):
     print(description)
     description.to_csv(path_report)
 
+def parse_json(path=None):
+    configuration = None
+    with open(path) as json_file:
+        configuration = json.load(json_file)
+    return configuration
+
+def parse_data_files(configuration):
+    data_files = configuration.keys()
+    for file in data_files:
+        if not os.path.exists(file):
+            raise Exception(f"Data file {file} does not exist.")
+    return data_files
+
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
     import sys
-    path = str(sys.argv[1])
-
-    parse(data_file=path)
+    path_json = str(sys.argv[1])
+   
+    # transform json configuration to Python dict
+    configuration = parse_json(path=path_json)
+    print("> Parsed JSON configuration.")
+    data_files = parse_data_files(configuration)
+    print("> Parsed and checked data files.")
+    for data_file in data_files:
+        parse(path=data_file, parse_config=configuration[data_file])
+    # parse(data_file=path)
 
     # first convert it to a Pandas dataframe for easy manipulation and plotting
     df = pd.DataFrame.from_records(parsed_data)
-    # print(df.to_string())
-    generate_report(df.drop('timestamp', axis=1, inplace=False), current_timestamp)
+    print(df.to_string())
+    # generate_report(df.drop('timestamp', axis=1, inplace=False), current_timestamp)
