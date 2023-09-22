@@ -77,11 +77,14 @@ def generate_report(output_dir_path, report_name, df, data_file, metric):
 def generate_reports(full_configuration, output_dir_path, df):
     for data_file, parse_configuration in full_configuration.items():
         for config in parse_configuration:
-            if "report" in config and config["report"] is not None:
+            if "report" in config and (config["report"] == 1 or isinstance(config["report"], str)):
+                report_name = config["name"]
+                if isinstance(config["report"], str):
+                    report_name = config["report"]
                 metric = config["metric"]
                 print(f"Generating report for metric \"{metric}\" in data file \"{data_file}\".")
                 # parse the data frame for the metric and data file you want to be reported
-                generate_report(output_dir_path, report_name=config["report"], df=df, data_file=data_file, metric=metric)
+                generate_report(output_dir_path, report_name=report_name, df=df, data_file=data_file, metric=metric)
 
 def plot_data(df, metric, plot_path, y_lim_min=None, y_lim_max=None):
     plt.figure(figsize=(20, 5))
@@ -116,11 +119,15 @@ def generate_plot(output_dir_path, plot_name, df, data_file, metric):
 def generate_plots(full_configuration, output_dir_path, df):
     for data_file, parse_configuration in full_configuration.items():
         for config in parse_configuration:
-            if "plot" in config and config["plot"] is not None:
+            if "plot" in config and (config["plot"] == 1 or isinstance(config["plot"], str)):
+                plot_name = config["name"]
+                if isinstance(config["plot"], str):
+                    plot_name = config["plot"]
+
                 metric = config["metric"]
                 print(f"Generating plot for metric \"{metric}\" in data file \"{data_file}\".")
                 # parse the data frame for the metric and data file you want to be reported
-                generate_plot(output_dir_path, plot_name=config["plot"], df=df, data_file=data_file, metric=metric)
+                generate_plot(output_dir_path, plot_name=plot_name, df=df, data_file=data_file, metric=metric)
 
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
