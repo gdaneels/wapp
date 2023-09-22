@@ -83,6 +83,45 @@ def generate_reports(full_configuration, output_dir_path, df):
                 # parse the data frame for the metric and data file you want to be reported
                 generate_report(output_dir_path, report_name=config["report"], df=df, data_file=data_file, metric=metric)
 
+def plot_data(df, metric, plot_path, y_lim_min=None, y_lim_max=None):
+    plt.figure(figsize=(20, 5))
+
+    sns.lineplot(df["value"], linewidth=1, marker=".", label=plot_path)
+    
+    plt.title("{0} over time".format(metric))
+    plt.ylabel("{0}".format(metric))
+    plt.xlabel('measurement')
+    plt.legend(loc="upper left")
+    plt.ylim(y_lim_min, y_lim_max)
+    plt.tight_layout()
+
+    plt.savefig(plot_path)
+    # print(f"Plotted {metric} graph to {plot_path}.")
+
+def generate_plot(output_dir_path, plot_name, df, data_file, metric):
+    output_dir_plot = output_dir_path
+    output_dir_plot += "/plots/"
+    if not os.path.exists(output_dir_plot):
+        try:
+            os.mkdir(output_dir_plot)
+        except OSError as error:
+            raise Exception(error)
+    output_plot_path = output_dir_plot + plot_name
+
+    # select the data
+    df_metric = df.loc[(df["file"] == data_file) & (df["metric"] == metric)]
+    # make the plot
+    plot_data(df_metric, metric, output_plot_path)
+
+def generate_plots(full_configuration, output_dir_path, df):
+    for data_file, parse_configuration in full_configuration.items():
+        for config in parse_configuration:
+            if "plot" in config and config["plot"] is not None:
+                metric = config["metric"]
+                print(f"Generating plot for metric \"{metric}\" in data file \"{data_file}\".")
+                # parse the data frame for the metric and data file you want to be reported
+                generate_plot(output_dir_path, plot_name=config["plot"], df=df, data_file=data_file, metric=metric)
+
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
@@ -105,5 +144,6 @@ if __name__ == "__main__":
     # first convert it to a Pandas dataframe for easy manipulation and plotting
     df = pd.DataFrame.from_records(parsed_data)
     generate_reports(full_configuration, output_dir_path, df)
+    generate_plots(full_configuration, output_dir_path, df)
     # print(df.to_string())
     # generate_report(df.drop('timestamp', axis=1, inplace=False), current_timestamp)
