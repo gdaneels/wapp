@@ -65,6 +65,7 @@
                 "cpu_dotnet_framework",
                 "cpu_dotnet_selfcontained"
             ],
+            "title": "CPU usage over measurement",
             "y_label":"CPU usage (%)",
             "x_label":"Measurement"
         }

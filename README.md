@@ -24,6 +24,13 @@ An example JSON:
                 "report":1,
                 "plot":1
             }
+            {
+                "name":"memory_c",
+                "parse_function:"parse_memory",
+                "metric":"memory_usage",
+                "report":1,
+                "plot":1
+            }
         ],
         "data/CPU_Java.log":[
             {
@@ -48,3 +55,5 @@ An example JSON:
     }
 }
 ```
+
+### Output

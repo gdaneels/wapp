@@ -139,9 +139,9 @@ def generate_individual_plots(full_configuration, output_dir_path, df):
                 # parse the data frame for the metric and data file you want to be reported
                 generate_plot(output_dir_path, plot_name=plot_name, df=df, data_file=data_file, metric=metric)
 
-def plot_combined(names_mapping, plot_name, x_label, y_label, plot_lines, output_dir_path, df):
+def plot_combined(names_mapping, plot_name, plot_title, x_label, y_label, plot_lines, output_dir_path, df):
     output_dir_plot = output_dir_path
-    output_dir_plot += "/plots/"
+    output_dir_plot += PLOTS_SUBDIR
     if not os.path.exists(output_dir_plot):
         try:
             os.mkdir(output_dir_plot)
@@ -158,8 +158,8 @@ def plot_combined(names_mapping, plot_name, x_label, y_label, plot_lines, output
         df_metric = df_metric.reset_index()
         sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=plot_line)
     
-    # metric
-    # plt.title("{0} over time".format(metric))
+    if plot_title:
+        plt.title(plot_title)
     if x_label:
         plt.xlabel(x_label)
     if y_label:
@@ -178,10 +178,11 @@ def generate_combined_plots(plot_configuration, names_mapping, output_dir_path, 
             if plot_line not in names_mapping:
                 raise Exception(f"Can not find name {plot_line} of parse config.")
 
+        plot_title = plot_info["title"] if "title" in plot_info else None
         x_label = plot_info["x_label"] if "x_label" in plot_info else None
         y_label = plot_info["y_label"] if "y_label" in plot_info else None
             
-        plot_combined(names_mapping, plot_name, x_label, y_label, plot_info["data"], output_dir_path, df)
+        plot_combined(names_mapping, plot_name, plot_title, x_label, y_label, plot_info["data"], output_dir_path, df)
 
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
