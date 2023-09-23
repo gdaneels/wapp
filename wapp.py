@@ -10,6 +10,8 @@ import parse_functions
 sns.set_style("ticks")
 sns.despine()
 
+# maps names to {metric, data_file}
+configuration_names_mapping = dict()
 parsed_data = []
 
 def parse(path, parse_configurations):
@@ -32,11 +34,21 @@ def parse(path, parse_configurations):
                     parsed_data.append({"timestamp": timestamp, "file": path, "metric": metric, "value": metric_val})
     print("Parsing done.")
 
+def parse_name_mapping(metrics_configuration):
+    for data_file, parse_configurations in metrics_configuration.items():
+        for parse_config in parse_configurations:
+            name = parse_config["name"] 
+            if name in configuration_names_mapping:
+                raise Exception(f"\"name\" {name} is not unique in JSON configuration.")
+            configuration_names_mapping[name] = {"metric": parse_config["metric"], "data_file": data_file}
+    # print(json.dumps(configuration_names_mapping, indent=4))
+    return configuration_names_mapping
 
 def parse_json(path=None):
     configuration = None
     with open(path) as json_file:
         configuration = json.load(json_file)
+
     return configuration
 
 def parse_data_files(configuration):
@@ -116,7 +128,7 @@ def generate_plot(output_dir_path, plot_name, df, data_file, metric):
     # make the plot
     plot_data(df_metric, metric, output_plot_path)
 
-def generate_plots(full_configuration, output_dir_path, df):
+def generate_individual_plots(full_configuration, output_dir_path, df):
     for data_file, parse_configuration in full_configuration.items():
         for config in parse_configuration:
             if "plot" in config and (config["plot"] == 1 or isinstance(config["plot"], str)):
@@ -129,6 +141,45 @@ def generate_plots(full_configuration, output_dir_path, df):
                 # parse the data frame for the metric and data file you want to be reported
                 generate_plot(output_dir_path, plot_name=plot_name, df=df, data_file=data_file, metric=metric)
 
+def generate_combined_plot(names_mapping, plot_name, plot_lines, output_dir_path, df):
+    output_dir_plot = output_dir_path
+    output_dir_plot += "/plots/"
+    if not os.path.exists(output_dir_plot):
+        try:
+            os.mkdir(output_dir_plot)
+        except OSError as error:
+            raise Exception(error)
+    output_plot_path = output_dir_plot + plot_name
+
+    plt.figure(figsize=(20, 5))
+
+    for plot_line in plot_lines:
+        df_metric = df.loc[(df["file"] == names_mapping[plot_line]["data_file"]) & (df["metric"] == names_mapping[plot_line]["metric"])]
+        # reset the index
+        # this ways the plots can be mapped over each other and are not sequential
+        df_metric = df_metric.reset_index()
+        sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=plot_line)
+    
+    # metric
+    # plt.title("{0} over time".format(metric))
+    plt.ylabel("{0}".format("test"))
+    plt.xlabel('measurement')
+    plt.legend(loc="upper left")
+    # plt.ylim(y_lim_min, y_lim_max)
+    plt.tight_layout()
+
+    plt.savefig(output_plot_path)
+    # print(f"Plotted {metric} graph to {plot_path}.")
+     
+def generate_combined_plots(plot_configuration, names_mapping, output_dir_path, df):
+    for plot_name, plot_lines in plot_configuration.items():
+        # check if the plot lines are valid names of parse configs
+        for plot_line in plot_lines:
+            if plot_line not in names_mapping:
+                raise Exception(f"Can not find name {plot_line} of parse config.")
+            
+        generate_combined_plot(names_mapping, plot_name, plot_lines, output_dir_path, df)
+
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
@@ -140,17 +191,27 @@ if __name__ == "__main__":
     # make output dir
     output_dir_path = make_output_dir(path_json)
     print(f"Created output directory at path {output_dir_path}.")
+
     # transform json configuration to Python dict
     full_configuration = parse_json(path=path_json)
+    names_mapping = parse_name_mapping(full_configuration["metrics"])
+    if "metrics" not in full_configuration:
+        raise Exception("No \"metrics\" part in the JSON configuration.")
+    metrics_configuration = full_configuration["metrics"]
     print("Parsed JSON configuration.")
-    data_files = parse_data_files(full_configuration)
+
+    # parse data files
+    data_files = parse_data_files(metrics_configuration)
     print("Parsed and checked data files.")
     for data_file in data_files:
-        parse(path=data_file, parse_configurations=full_configuration[data_file])
+        parse(path=data_file, parse_configurations=metrics_configuration[data_file])
 
     # first convert it to a Pandas dataframe for easy manipulation and plotting
     df = pd.DataFrame.from_records(parsed_data)
-    generate_reports(full_configuration, output_dir_path, df)
-    generate_plots(full_configuration, output_dir_path, df)
-    # print(df.to_string())
-    # generate_report(df.drop('timestamp', axis=1, inplace=False), current_timestamp)
+    generate_reports(metrics_configuration, output_dir_path, df)
+    generate_individual_plots(metrics_configuration, output_dir_path, df)
+
+    plots_configuration = None
+    if "plots" in full_configuration:
+        plot_configuration = full_configuration["plots"]
+        generate_combined_plots(plot_configuration, names_mapping, output_dir_path, df)
