@@ -10,6 +10,9 @@ import parse_functions
 sns.set_style("ticks")
 sns.despine()
 
+PLOTS_SUBDIR = '/plots/'
+REPORTS_SUBDIR = '/reports/'
+
 # maps names to {metric, data_file}
 configuration_names_mapping = dict()
 parsed_data = []
@@ -59,22 +62,17 @@ def parse_data_files(configuration):
     return data_files
 
 def make_output_dir(path_json):
-    output_dir_path = "output/"
-    output_dir_path += os.path.basename(path_json).split(".")[0]
+    output_dir_path = "output/" + os.path.basename(path_json).split(".")[0]
     if not os.path.exists(output_dir_path):
         os.makedirs(output_dir_path)
     else:
-        raise Exception(f"Could not create output directory {output_dir_path}.")
+        raise Exception(f"Output directory {output_dir_path} exists already.")
     return output_dir_path
 
 def generate_report(output_dir_path, report_name, df, data_file, metric):
-    output_dir_report = output_dir_path
-    output_dir_report += "/reports/"
+    output_dir_report = output_dir_path + REPORTS_SUBDIR
     if not os.path.exists(output_dir_report):
-        try:
-            os.mkdir(output_dir_report)
-        except OSError as error:
-            raise Exception(error)
+        os.mkdir(output_dir_report)
     output_dir_summary = output_dir_report + f"{report_name}-summary.csv"
     output_dir_data = output_dir_report + f"{report_name}-data.csv"
 
@@ -115,7 +113,7 @@ def plot_data(df, metric, plot_path, y_lim_min=None, y_lim_max=None):
 
 def generate_plot(output_dir_path, plot_name, df, data_file, metric):
     output_dir_plot = output_dir_path
-    output_dir_plot += "/plots/"
+    output_dir_plot += PLOTS_SUBDIR
     if not os.path.exists(output_dir_plot):
         try:
             os.mkdir(output_dir_plot)
@@ -141,7 +139,7 @@ def generate_individual_plots(full_configuration, output_dir_path, df):
                 # parse the data frame for the metric and data file you want to be reported
                 generate_plot(output_dir_path, plot_name=plot_name, df=df, data_file=data_file, metric=metric)
 
-def generate_combined_plot(names_mapping, plot_name, plot_lines, output_dir_path, df):
+def plot_combined(names_mapping, plot_name, x_label, y_label, plot_lines, output_dir_path, df):
     output_dir_plot = output_dir_path
     output_dir_plot += "/plots/"
     if not os.path.exists(output_dir_plot):
@@ -162,8 +160,10 @@ def generate_combined_plot(names_mapping, plot_name, plot_lines, output_dir_path
     
     # metric
     # plt.title("{0} over time".format(metric))
-    plt.ylabel("{0}".format("test"))
-    plt.xlabel('measurement')
+    if x_label:
+        plt.xlabel(x_label)
+    if y_label:
+        plt.ylabel(y_label)
     plt.legend(loc="upper left")
     # plt.ylim(y_lim_min, y_lim_max)
     plt.tight_layout()
@@ -172,13 +172,16 @@ def generate_combined_plot(names_mapping, plot_name, plot_lines, output_dir_path
     # print(f"Plotted {metric} graph to {plot_path}.")
      
 def generate_combined_plots(plot_configuration, names_mapping, output_dir_path, df):
-    for plot_name, plot_lines in plot_configuration.items():
+    for plot_name, plot_info in plot_configuration.items():
         # check if the plot lines are valid names of parse configs
-        for plot_line in plot_lines:
+        for plot_line in plot_info["data"]:
             if plot_line not in names_mapping:
                 raise Exception(f"Can not find name {plot_line} of parse config.")
+
+        x_label = plot_info["x_label"] if "x_label" in plot_info else None
+        y_label = plot_info["y_label"] if "y_label" in plot_info else None
             
-        generate_combined_plot(names_mapping, plot_name, plot_lines, output_dir_path, df)
+        plot_combined(names_mapping, plot_name, x_label, y_label, plot_info["data"], output_dir_path, df)
 
 if __name__ == "__main__":
     current_timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')

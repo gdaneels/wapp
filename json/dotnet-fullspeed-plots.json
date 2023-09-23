@@ -59,10 +59,14 @@
         ]
     },
     "plots":{
-        "cpu_comparison":[
-            "cpu_c",
-            "cpu_dotnet_framework",
-            "cpu_dotnet_selfcontained"
-        ]
+        "cpu_comparison":{
+            "data":[
+                "cpu_c",
+                "cpu_dotnet_framework",
+                "cpu_dotnet_selfcontained"
+            ],
+            "y_label":"CPU usage (%)",
+            "x_label":"Measurement"
+        }
     }
 }
