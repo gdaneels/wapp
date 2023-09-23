@@ -1,6 +1,17 @@
 # wapp
 Wrapper-Around-Python-Parsing: small Python library to quickly parse log files
 
+# How to use?
+
+Run:
+```
+python wapp.py [configuration.json]
+```
+
+with `configuration.json` describing the available data and graphs to plot.
+
+# JSON configuration file
+
 An example JSON:
 ```
 {
