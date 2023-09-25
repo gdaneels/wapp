@@ -5,6 +5,7 @@ from plotter import Plotter
 from datetime import datetime
 import os
 import sys
+import pandas as pd
 
 class Wapp:
     def __init__(self, path_configuration_file=""):
@@ -16,9 +17,11 @@ class Wapp:
         self.path_configuration_file = path_configuration_file
         self.path_output_dir = self._make_output_dir()
         self.parsed_data = []
+        self.dataframe = None
 
         self.configuration = Configuration(path_configuration_file)
         self.parser = Parser(self.parsed_data)
+        self.report_generator = Report(self.path_output_dir, "reports")
 
     def _make_output_dir(self):
         path_output_dir = self.name_output_dir + "/" + os.path.basename(self.path_configuration_file).split(".")[0]
@@ -31,6 +34,14 @@ class Wapp:
 
     def parse(self):
         self.parser.parse(self.configuration.data())
+        self.dataframe = pd.DataFrame.from_records(self.parsed_data) 
+
+    def get_data(self):
+        return self.parsed_data
+
+    def generate_reports(self):
+        self.report_generator.set_data(self.dataframe)
+        self.report_generator.generate(self.configuration.data())
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -38,7 +49,7 @@ if __name__ == "__main__":
     
     path_configuration_file = str(sys.argv[1])
     wapp = Wapp(path_configuration_file)
-    report = Report()
-    plotter = Plotter()
+    # plotter = Plotter()
 
     wapp.parse()
+    wapp.generate_reports()
