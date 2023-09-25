@@ -15,15 +15,16 @@ class Wapp:
         self.name_plots_dir = self.name_output_dir + "/" + "plots"
         self.path_configuration_file = path_configuration_file
         self.path_output_dir = self._make_output_dir()
+        self.parsed_data = []
 
         self.configuration = Configuration(path_configuration_file)
-        self.parser = Parser()
+        self.parser = Parser(self.parsed_data)
 
     def _make_output_dir(self):
         path_output_dir = self.name_output_dir + "/" + os.path.basename(self.path_configuration_file).split(".")[0]
         if not os.path.exists(path_output_dir):
             os.makedirs(path_output_dir)
-            print(f"Created output dir {self.path_output_dir}.")
+            print(f"Created output dir {path_output_dir}.")
         else:
             raise Exception(f"Output directory {path_output_dir} exists already.")
         return path_output_dir
@@ -39,3 +40,5 @@ if __name__ == "__main__":
     wapp = Wapp(path_configuration_file)
     report = Report()
     plotter = Plotter()
+
+    wapp.parse()

@@ -1,0 +1,53 @@
+{
+    "metrics":{
+        "data/exp3-100ms/stats-2023.09.20-16.13.48-c-100ms.log":[
+            {
+                "name":"cpu_c",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            }
+        ],
+        "data/exp3-100ms/stats-2023.09.20-15.58.15-framework-dependent-100ms.log":[
+            {
+                "name":"cpu_dotnet_framework",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            }
+        ],
+        "data/exp3-100ms/tcp-server-2023_09_20_04_13_PM-c-100ms.log":[
+            {
+                "name":"throughput_c",
+                "parse_timestamp":"parse_timestamp",
+                "parse_function":"parse_mbps_microseconds",
+                "metric":"throughput",
+                "report":1,
+                "plot":1
+            }
+        ],
+        "data/exp3-100ms/tcp-server-2023_09_20_03_58_PM-dotnet-framework-dependent-100ms.log":[
+            {
+                "name":"throughput_dotnet_framework",
+                "parse_timestamp":"parse_timestamp",
+                "parse_function":"parse_mbps_milliseconds",
+                "metric":"throughput",
+                "report":1,
+                "plot":1
+            }
+        ]
+    },
+    "plots":{
+        "cpu_comparison":{
+            "data":[
+                "cpu_c",
+                "cpu_dotnet_framework"
+            ],
+            "title": "CPU usage over measurement",
+            "y_label":"CPU usage (%)",
+            "x_label":"Measurement"
+        }
+    }
+}
