@@ -33,7 +33,7 @@ def parse(path, parse_configurations):
                 parse_function = config["parse_function"]
                 metric = config["metric"]
                 metric_val = getattr(parse_functions, parse_function)(line)
-                if metric_val:
+                if metric_val is not None:
                     parsed_data.append({"timestamp": timestamp, "file": path, "metric": metric, "value": metric_val})
     print("Parsing done.")
 
