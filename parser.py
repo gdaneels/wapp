@@ -1,33 +1,33 @@
-import json
+import wapp_functions
 
 class Parser:
-    def __init__(self, data=None):
+    def __init__(self, parsed_data=None):
         print("Initializing Parser.")
-        if data is None:
+        if parsed_data is None:
             raise Exception("Parser should be given a data argument to stored parsed data.")
-        self.data = data
+        self.parsed_data = parsed_data
 
     def parse(self, configuration_data):
         data_files = configuration_data.keys()
         for data_file in data_files:
-            self.parse_data_file()
+            self.parse_data_file(data_file, configuration_data[data_file])
 
-    def parse_data_file(self, path, parse_configurations):
-        print(f"Parsing file {path} with following configuration:")
-        print(json.dumps(parse_configurations, indent=4))
-        with open(path, errors='ignore') as f:
+    def parse_data_file(self, data_file, data_file_parse_config):
+        print(f"Parsing file {data_file} with following configuration:")
+        # print(json.dumps(data_file_parse_config, indent=4))
+        with open(data_file, errors='ignore') as f:
             for line in f:
-                for config in parse_configurations:
+                # a parse configuration per data file can have multiple parse configurations per metric
+                for metric_parse_config in data_file_parse_config:
                     # parse timestamp
                     timestamp = None
-                    if "parse_timestamp" in config:
-                        parse_timestamp = config["parse_timestamp"]
-                        timestamp = getattr(parse_functions, parse_timestamp)(line)
-
+                    if "parse_timestamp" in metric_parse_config:
+                        parse_timestamp = metric_parse_config["parse_timestamp"]
+                        timestamp = getattr(wapp_functions, parse_timestamp)(line)
                     # parse metric
-                    parse_function = config["parse_function"]
-                    metric = config["metric"]
-                    metric_val = getattr(parse_functions, parse_function)(line)
+                    parse_function = metric_parse_config["parse_function"]
+                    metric = metric_parse_config["metric"]
+                    metric_val = getattr(wapp_functions, parse_function)(line)
                     if metric_val:
-                        parsed_data.append({"timestamp": timestamp, "file": path, "metric": metric, "value": metric_val})
+                         self.parsed_data.append({"timestamp": timestamp, "file": data_file, "metric": metric, "value": metric_val})
         print("Parsing done.")
