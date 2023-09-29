@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 class Plotter:
-    def __init__(self, configuration_data, dataframe, path_output_dir, plots_dir):
+    def __init__(self, configuration_data, configuration_plots, dataframe, path_output_dir, plots_dir):
         print("Initializing Plotter.")
 
         self.path_output_dir = path_output_dir
@@ -14,6 +14,7 @@ class Plotter:
 
         # initialize configuration and dataframe
         self.configuration_data = configuration_data
+        self.configuration_plots = configuration_plots
         self.dataframe = dataframe
 
     def _need_plot(self, metric_parse_configuration):
@@ -51,6 +52,43 @@ class Plotter:
         self._generate_plot(plot_name, data_file, metric)
         print(f"Generated plot for metric \"{metric}\" in data file \"{data_file}\".")
 
+    # map the names to data files in which their data is to be found
+    # @todo: it would be faster to do this only once for all plot lines at initialization 
+    def _map_names_to_metric_info(self, names):
+        names_to_metric_info = dict()
+        for data_file, metrics in self.configuration_data.items(): 
+            for metric in metrics:
+                if metric["name"] in names: 
+                    names_to_metric_info[metric["name"]] = {"metric": metric["metric"], "data_file": data_file}
+        return names_to_metric_info
+
+    def _generate_plot_combination(self, plot_name, plot_info):
+        path_plot = self.plots_dir + "/" + plot_name
+
+        plot_title = plot_info["title"] if "title" in plot_info else None
+        x_label = plot_info["x_label"] if "x_label" in plot_info else None
+        y_label = plot_info["y_label"] if "y_label" in plot_info else None
+
+        names_to_metric_info = self._map_names_to_metric_info(plot_info["data"])
+
+        plt.figure(figsize=(20, 5))
+
+        for plot_line in plot_info["data"]:
+            df_metric = self.dataframe.loc[(self.dataframe["file"] == names_to_metric_info[plot_line]["data_file"]) & (self.dataframe["metric"] == names_to_metric_info[plot_line]["metric"])]
+            # reset the index, so the plots can be mapped over each other and are not sequential
+            df_metric = df_metric.reset_index()
+            sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=plot_line)
+        
+        if plot_title:
+            plt.title(plot_title)
+        if x_label:
+            plt.xlabel(x_label)
+        if y_label:
+            plt.ylabel(y_label)
+        plt.legend(loc="upper left")
+        plt.tight_layout()
+        plt.savefig(path_plot)
+
     def generate(self):
         if self.dataframe is None:
             raise Exception("No data(frame) yet to generate plots from.")
@@ -59,3 +97,14 @@ class Plotter:
         for data_file in data_files:
             for metric_parse_configuration in self.configuration_data[data_file]:
                 self._generate_plot_metric(data_file, metric_parse_configuration)
+
+    def generate_combinations(self):
+        if self.dataframe is None:
+            raise Exception("No data(frame) yet to generate plots from.")
+
+        plot_names = self.configuration_plots.keys()
+        for plot_name in plot_names:
+            plot_info = self.configuration_plots[plot_name]
+            self._generate_plot_combination(plot_name, plot_info)
+            print(f"Generated combined plot \"{plot_name}\".")
+
