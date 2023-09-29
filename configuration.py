@@ -34,7 +34,7 @@ class Configuration:
     def get(self):
         return self.configuration
 
-    def data(self):
+    def metrics(self):
         return self.configuration["metrics"]
 
     def plots(self):
