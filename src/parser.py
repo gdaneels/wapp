@@ -1,4 +1,4 @@
-import wapp_functions
+from src import wapp_functions
 
 class Parser:
     def __init__(self, parsed_data=None):

@@ -1,7 +1,7 @@
-from parser import Parser 
-from configuration import Configuration 
-from reporter import Reporter 
-from plotter import Plotter 
+from src.parser import Parser 
+from src.configuration import Configuration 
+from src.reporter import Reporter 
+from src.plotter import Plotter 
 from datetime import datetime
 import os
 import sys
