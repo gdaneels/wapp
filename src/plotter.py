@@ -31,13 +31,15 @@ class Plotter:
 
         # save all data
         df_metric = self.dataframe.loc[(self.dataframe["file"] == data_file) & (self.dataframe["metric"] == metric)]
+        # reset the index, so the graph x axis starts from 0
+        df_metric = df_metric.reset_index()
 
         # make the plot
         plt.figure(figsize=(20, 5))
         sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=path_plot)
         plt.title("{0} over time".format(metric))
         plt.ylabel("{0}".format(metric))
-        plt.xlabel('measurement')
+        plt.xlabel("Measurement")
         plt.legend(loc="upper left")
         plt.tight_layout()
         plt.savefig(path_plot)
