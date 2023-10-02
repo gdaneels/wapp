@@ -1,0 +1,49 @@
+{
+    "metrics":{
+        "examples/data/cpu_ram_usage_device_1.log":[
+            {
+                "name":"cpu_device_1",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            },
+            {
+                "name":"ram_device_1",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            }
+        ],
+        "examples/data/cpu_ram_usage_device_2.log":[
+            {
+                "name":"cpu_device_2",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            }
+        ],
+        "examples/data/rx_throughput_device_1.log":[
+            {
+                "name":"rx_throughput_device_1",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            }
+        ]
+    },
+    "plots":{
+        "cpu_comparison":{
+            "data":[
+                "cpu_device_1",
+                "cpu_device_2"
+            ],
+            "title": "CPU usage per device",
+            "y_label":"CPU usage (%)",
+            "x_label":"Measurement"
+        }
+    }
+}
