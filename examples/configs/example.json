@@ -10,8 +10,8 @@
             },
             {
                 "name":"ram_device_1",
-                "parse_function":"parse_cpu",
-                "metric":"cpu_usage",
+                "parse_function":"parse_memory",
+                "metric":"ram_usage",
                 "report":1,
                 "plot":1
             }
@@ -28,8 +28,9 @@
         "examples/data/rx_throughput_device_1.log":[
             {
                 "name":"rx_throughput_device_1",
-                "parse_function":"parse_cpu",
-                "metric":"cpu_usage",
+                "parse_function":"parse_throughput",
+                "parse_timestamp":"parse_timestamp",
+                "metric":"rx_throughput",
                 "report":1,
                 "plot":1
             }
