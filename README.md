@@ -8,19 +8,21 @@ Run:
 python wapp.py configuration.json
 ```
 
-with `configuration.json` describing the available data and graphs to plot.
+with `configuration.json` describing the available data, and reports and plots to generate.
 
 # Features
 
 We take an in-depth look at the different features of WAPP by using snippets of the `examples/configs/example.json` configuration file and discussing its contents and results.
 
-## Parse multiple metrics per data file
-
-## Parse multiple data file
+## Parse a single metric per data file
 
 ## Tailored parse function per metric
 
 ## Parse timestamp per line
+
+## Parse multiple metrics per data file
+
+## Parse multiple data file
 
 ## Filenames for individual plots and/or reports
 
