@@ -161,9 +161,36 @@ In the description of a metric, you can pass a name to the `report` and `plot` p
 }
 ```
 
-If no name is given, but you still want the reports and/or plot, you can just assign `1`, e.g., `"report":1`. If you do not want any report or plot, you can just leave the parameter out of the metric configuration.
+If no name is given, but you still want the reports and/or plot, you can just assign `1`, e.g., `"report":1`.
+
+If no report or plot is needed, you can just drop the parameter from of the metric configuration.
 
 ## Multiple metrics on same graph
+
+You can compare metrics of the same and/or different files in the same graph, by using the `plots` dictionary:
+
+```
+{
+    "metrics":{
+        ...
+    },
+    "plots":{
+        "cpu_comparison":{
+            "data":[
+                "cpu_device_1",
+                "cpu_device_2"
+            ],
+            "title": "CPU usage per device",
+            "y_label":"CPU usage (%)",
+            "x_label":"Measurement"
+        }
+    }
+}
+```
+
+To select the data that has to be compared in the graph, you use the unique `name` parameter defined in each metric configuration.
+
+You can add one or more graphs to this `plots` list. 
 
 # Example
 
