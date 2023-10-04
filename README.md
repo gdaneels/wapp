@@ -14,7 +14,34 @@ with `configuration.json` describing the available data, and reports and plots t
 
 We take an in-depth look at the different features of WAPP by using snippets of the `examples/configs/example.json` configuration file and discussing its contents and results.
 
-## Parse a single metric per data file
+## Parse a single metric per log file
+
+You can specify a specific metric that you want to parse in a log file, by adding this snippet in your configuration file:
+```
+{
+    "metrics":{
+        "examples/data/cpu_ram_usage_device_1.log":[
+            {
+                "name":"cpu_device_1",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            }
+        ]
+    }
+}
+```
+
+The metrics (in the log files) that you want to parse are put in the `metrics` part of the configuration file.
+
+Subsequently, you specify the _path to the log file_ in which you want to parse the metric. The metric part contains (or can contain following fields):
+
+* `name`: names this metric in a general way, coupled to this particular log file, so it can be reference in comparison with similar metrics in other log files. The name should be unique over the whole configuration file.
+* `parse_function`: specifies the parsing function to be used in the `src/wapp_functions` source file.
+* `metric`: names the data that is parsed in this log file. Should be unique for this particular log file.
+* `report`: indicates a `summary` and `data` report should be generated out of the parsed data. Not obligatory.
+* `plot`: indicates an individual plot for this metric should be generated. Not obligatory.
 
 ## Tailored parse function per metric
 
