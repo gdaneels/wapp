@@ -87,9 +87,81 @@ If no `parse_timestamp` function is given, `None` is added to the data frame in 
 
 ## Parse multiple metrics per data file
 
-## Parse multiple data file
+You can parse multiple metrics in the same log file, simply by adding multiple metrics in the list of the same log file:
+
+```
+{
+    "metrics":{
+        "examples/data/cpu_ram_usage_device_2.log":[
+            {
+                "name":"cpu_device_2",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+            },
+            {
+                "name":"ram_device_1",
+                "parse_function":"parse_memory",
+                "metric":"ram_usage",
+                "report":1,
+                "plot":1
+            }
+        ]
+    }
+}
+```
+
+## Parse multiple data files
+
+You can parse multiple log files in the same run by adding all log files in the `metrics` dictionary:
+
+```
+{
+    "metrics":{
+        "examples/data/cpu_ram_usage_device_2.log":[
+            {
+                ...
+            },
+            {
+                ...
+            }
+        ],
+        "examples/data/cpu_ram_usage_device_2.log":[
+            {
+                ...
+            }
+        ],
+        "examples/data/rx_throughput_device_1.log":[
+            {
+                ...
+            }
+        ]
+    }
+}
+```
 
 ## Filenames for individual plots and/or reports
+
+In the description of a metric, you can pass a name to the `report` and `plot` parameters. This name will be used for the individual reports and plot of the metric:
+
+```
+{
+    "metrics":{
+        "examples/data/cpu_ram_usage_device_1.log":[
+            {
+                "name":"cpu_device_1",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":"report_cpu_device_1",
+                "plot":"plot_cpu_device_1"
+            }
+        ]
+    }
+}
+```
+
+If no name is given, but you still want the reports and/or plot, you can just assign `1`, e.g., `"report":1`. If you do not want any report or plot, you can just leave the parameter out of the metric configuration.
 
 ## Multiple metrics on same graph
 
