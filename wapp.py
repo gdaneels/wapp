@@ -52,6 +52,8 @@ class Wapp:
         self.plotter.generate()
 
     def plot_combinations(self):
+        if self.configuration.plots() is None:
+            return
         self.plotter.generate_combinations()
 
 if __name__ == "__main__":
