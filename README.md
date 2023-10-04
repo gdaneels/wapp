@@ -45,7 +45,45 @@ Subsequently, you specify the _path to the log file_ in which you want to parse 
 
 ## Tailored parse function per metric
 
+You specify a tailored parsing function per metric you want to parse, as can be seen in the feature above. Subsequently, you implement the parsing function in the `src/wapp_functions.py`:
+```
+def parse_cpu(line):
+    pattern = re.compile("CPU usage is (\d+.\d+) %")
+    is_match = pattern.search(line)
+    if (is_match):
+        return float(is_match.group(1))
+    else:
+        return None
+```
+
+In this `parse_cpu(line)` function, we make the choice to `return None` if no match is found. This has the consequence the parser will just continue to the next line.
+
+If you are sure that you should find a match per line, it's probably best to raise an exception here to stop the program. This way, you get informed that the metric is not found in a line.
+
 ## Parse timestamp per line
+
+You can specify a specific timestamp parser function, if there are timestamps included in the lines of the log file. 
+
+```
+{
+    "metrics":{
+        "examples/data/rx_throughput_device_1.log":[
+            {
+                "name":"rx_throughput_device_1",
+                "parse_function":"parse_throughput",
+                "parse_timestamp":"parse_timestamp",
+                "metric":"rx_throughput",
+                "report":1,
+                "plot":1
+            }
+        ]
+    }
+}
+```
+
+This `parse_timestamp` function is also executed on each line, just like the `parse_function` of a metric. The timestamp is then also added to the row in the data frame.
+
+If no `parse_timestamp` function is given, `None` is added to the data frame in the column of the timestamp.
 
 ## Parse multiple metrics per data file
 
