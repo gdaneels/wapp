@@ -26,7 +26,7 @@ class Plotter:
             plot_name = metric_parse_configuration["plot"]
         return plot_name
 
-    def _generate_plot(self, plot_name, data_file, metric, x_axis_timestamps):
+    def _generate_plot(self, plot_name, data_file, metric, plot_info, add_x_axis_timestamps):
         path_plot = self.plots_dir + "/" + plot_name
 
         # save all data
@@ -34,15 +34,23 @@ class Plotter:
         # reset the index, so the graph x axis starts from 0
         df_metric = df_metric.reset_index()
 
+        plot_title = metric
+        x_label = "Measurement"
+        y_label = metric
+        if plot_info:
+            plot_title = plot_info["title"]
+            x_label = plot_info["x_label"]
+            y_label = plot_info["y_label"]
+
         # make the plot
         plt.figure(figsize=(20, 5))
-        if x_axis_timestamps:
+        if add_x_axis_timestamps:
             sns.lineplot(x=df_metric["timestamp"], y=df_metric["value"], linewidth=2, marker=".", label=path_plot)
         else:
             sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=path_plot)
-        plt.title("{0} over time".format(metric))
-        plt.ylabel("{0}".format(metric))
-        plt.xlabel("Measurement")
+        plt.title(plot_title)
+        plt.ylabel(y_label)
+        plt.xlabel(x_label)
         plt.legend(loc="upper left")
         plt.tight_layout()
         plt.savefig(path_plot)
@@ -51,13 +59,18 @@ class Plotter:
         if not self._need_plot(metric_parse_configuration):
             return
         
+        # extract plot details
         plot_name = self._get_plot_name(metric_parse_configuration)
         metric = metric_parse_configuration["metric"]
-        x_axis_timestamps = False
+        plot_info = None
+        if "plot_info" in metric_parse_configuration:
+            plot_info = metric_parse_configuration["plot_info"]
+        add_x_axis_timestamps = False
         if "parse_timestamp" in metric_parse_configuration:
-            x_axis_timestamps = True
+            add_x_axis_timestamps = True
+
         # parse the data frame for the metric and data file you want to be reported
-        self._generate_plot(plot_name, data_file, metric, x_axis_timestamps)
+        self._generate_plot(plot_name, data_file, metric, plot_info, add_x_axis_timestamps)
         print(f"Generated plot for metric \"{metric}\" in data file \"{data_file}\".")
 
     # map the names to data files in which their data is to be found

@@ -32,7 +32,12 @@
                 "parse_timestamp":"parse_timestamp",
                 "metric":"rx_throughput",
                 "report":1,
-                "plot":1
+                "plot":1,
+                "plot_info":{
+                    "x_label":"Timestamp",
+                    "y_label":"Data rate (Mbit/s)",
+                    "title":"Data rate over time"
+                }
             }
         ]
     },
