@@ -26,7 +26,7 @@ class Plotter:
             plot_name = metric_parse_configuration["plot"]
         return plot_name
 
-    def _generate_plot(self, plot_name, data_file, metric):
+    def _generate_plot(self, plot_name, data_file, metric, x_axis_timestamps):
         path_plot = self.plots_dir + "/" + plot_name
 
         # save all data
@@ -36,7 +36,10 @@ class Plotter:
 
         # make the plot
         plt.figure(figsize=(20, 5))
-        sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=path_plot)
+        if x_axis_timestamps:
+            sns.lineplot(x=df_metric["timestamp"], y=df_metric["value"], linewidth=2, marker=".", label=path_plot)
+        else:
+            sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=path_plot)
         plt.title("{0} over time".format(metric))
         plt.ylabel("{0}".format(metric))
         plt.xlabel("Measurement")
@@ -50,8 +53,11 @@ class Plotter:
         
         plot_name = self._get_plot_name(metric_parse_configuration)
         metric = metric_parse_configuration["metric"]
+        x_axis_timestamps = False
+        if "parse_timestamp" in metric_parse_configuration:
+            x_axis_timestamps = True
         # parse the data frame for the metric and data file you want to be reported
-        self._generate_plot(plot_name, data_file, metric)
+        self._generate_plot(plot_name, data_file, metric, x_axis_timestamps)
         print(f"Generated plot for metric \"{metric}\" in data file \"{data_file}\".")
 
     # map the names to data files in which their data is to be found
