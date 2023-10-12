@@ -43,6 +43,36 @@ Subsequently, you specify the _path to the log file_ in which you want to parse 
 * `report`: indicates a `summary` and `data` report should be generated out of the parsed data. Not obligatory.
 * `plot`: indicates an individual plot for this metric should be generated. Not obligatory.
 
+## Extra plot details for metric plot
+
+You can add additional information for an individual metric plot, such as the `x_label`, the `y_label` and the plot `title`:
+
+```
+{
+    "metrics":{
+        "examples/data/cpu_ram_usage_device_1.log":[
+            {
+                "name":"cpu_device_1",
+                "parse_function":"parse_cpu",
+                "metric":"cpu_usage",
+                "report":1,
+                "plot":1
+                "plot_info":{
+                    "x_label":"Timestamp",
+                    "y_label":"Data rate (Mbit/s)",
+                    "title":"Data rate over time"
+                }
+            }
+        ]
+    }
+}
+```
+
+When `plot_info` or one of the parameters is not given, defaults values are used:
+* `x_label`: "Measurement"
+* `y_label`: the `metric` value
+* `title`: the `metric` value
+
 ## Tailored parse function per metric
 
 You specify a tailored parsing function per metric you want to parse, as can be seen in the feature above. Subsequently, you implement the parsing function in the `src/wapp_functions.py`:
