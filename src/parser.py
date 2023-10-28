@@ -17,8 +17,13 @@ class Parser:
                 timestamp = getattr(wapp_functions, parse_timestamp)(line)
             # parse metric
             parse_function = metric_parse_config["parse_function"]
+            parse_function_arg = None
             metric = metric_parse_config["metric"]
-            metric_val = getattr(wapp_functions, parse_function)(line)
+            if "parse_function_arg" in metric_parse_config:
+                parse_function_arg = metric_parse_config["parse_function_arg"]
+                metric_val = getattr(wapp_functions, parse_function)(line, parse_function_arg)
+            else:
+                metric_val = getattr(wapp_functions, parse_function)(line)
             if metric_val is not None:
                  self.parsed_data.append({"timestamp": timestamp, "file": data_file, "metric": metric, "value": metric_val})
 
