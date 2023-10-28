@@ -9,6 +9,7 @@ class Configuration:
             raise Exception(f"Input JSON configuration {path_configuration_file} does not exist.")
 
         self.configuration = self._parse(path_configuration_file)
+        self._check_metric_configurations(self.configuration["metrics"])
 
         print("Parsed configuration file.")
 
@@ -17,6 +18,20 @@ class Configuration:
         for file in data_files:
             if not os.path.exists(file):
                 raise Exception(f"Data file {file} does not exist.")
+
+    def _check_timestamp(self, data_file, metric_configuration):
+        # don't bother if not needed
+        if "parse_timestamp" not in metric_configuration:
+            return True
+
+        if "function" not in metric_configuration["parse_timestamp"]:
+            name = metric_configuration["name"]
+            raise Exception(f"No function name in parse_timestamp configuration for metric {name} in {metric_configuration}.")
+
+    def _check_metric_configurations(self, metric_configurations):
+        for data_file, metric_configuration_per_data_file in metric_configurations.items():
+            for metric_configuration in metric_configuration_per_data_file:
+                self._check_timestamp(data_file, metric_configuration)
 
     def _parse(self, path_configuration_file=""):
         configuration = None
