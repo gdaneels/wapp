@@ -22,13 +22,11 @@ class Parser:
             if timestamp is None:
                 return None, False
             if "start" in metric_parse_config["parse_timestamp"]:
-                timestamp_start = metric_parse_config["parse_timestamp"]["start"]
-                timestamp_start = datetime.strptime(timestamp_start, '%H:%M:%S')
+                timestamp_start = getattr(wapp_functions, parse_timestamp)(metric_parse_config["parse_timestamp"]["start"])
                 if timestamp.time() < timestamp_start.time():
                     timestamp_within_range = False
             if "stop" in metric_parse_config["parse_timestamp"]:
-                timestamp_stop = metric_parse_config["parse_timestamp"]["stop"]
-                timestamp_stop = datetime.strptime(timestamp_stop, '%H:%M:%S')
+                timestamp_stop = getattr(wapp_functions, parse_timestamp)(metric_parse_config["parse_timestamp"]["stop"])
                 if timestamp.time() > timestamp_stop.time():
                     timestamp_within_range = False
         return timestamp, timestamp_within_range
@@ -37,7 +35,7 @@ class Parser:
         # a parse configuration per data file can have multiple parse configurations per metric
         for metric_parse_config in data_file_parse_config:
             timestamp, timestamp_within_range = self._parse_valid_timestamp(metric_parse_config, line)
-            if timestamp is None or (timestamp is not None and not timestamp_within_range):
+            if timestamp is not None and not timestamp_within_range:
                 return
 
             # parse metric
