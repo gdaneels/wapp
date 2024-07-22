@@ -92,7 +92,7 @@ If you are sure that you should find a match per line, it's probably best to rai
 
 ## Parse timestamp per line
 
-You can specify a specific timestamp parser function, if there are timestamps included in the lines of the log file. 
+If there are timestamps included in the lines of the log file, you can specify a specific timestamp parser function by using the `function` key in the `parse_timestamp` dictionary. Additionally, if you specify a timestamp function, you *must* also set the range which should be parsed by specifying the `start` and `stop` timestamp:
 
 ```
 {
@@ -101,7 +101,11 @@ You can specify a specific timestamp parser function, if there are timestamps in
             {
                 "name":"rx_throughput_device_1",
                 "parse_function":"parse_throughput",
-                "parse_timestamp":"parse_timestamp",
+                "parse_timestamp": { 
+                    "function":"parse_timestamp",
+                    "start":"2023-10-02 21:00:00",
+                    "stop":"2023-10-02 23:54:42"
+                },
                 "metric":"rx_throughput",
                 "report":1,
                 "plot":1
@@ -114,6 +118,60 @@ You can specify a specific timestamp parser function, if there are timestamps in
 This `parse_timestamp` function is also executed on each line, just like the `parse_function` of a metric. The timestamp is then also added to the row in the data frame.
 
 If no `parse_timestamp` function is given, `None` is added to the data frame in the column of the timestamp.
+
+## Parse events
+
+You can parse for certain "event" in your log file. These events will be indicated in your plots by a vertical line.
+
+An example of an event can be:
+
+```
+2023-10-02 22:51:42 - RX throughput received is 2.20 Mbit/s.
+2023-10-02 22:51:47 - RX throughput received is 2.28 Mbit/s.
+2023-10-02 22:51:52 - RX throughput received is 2.50 Mbit/s.
+2023-10-02 22:51:53 - --- EVENT Y ---
+2023-10-02 22:51:57 - RX throughput received is 2.22 Mbit/s.
+2023-10-02 22:52:02 - RX throughput received is 2.06 Mbit/s.
+2023-10-02 22:52:07 - RX throughput received is 2.18 Mbit/s.
+```
+
+To indicate in your configuration to you want to parse and plot the event, you need to add the `parse_events` information:
+
+```
+        "examples/data/rx_throughput_device_1.log":[
+            {
+                "name":"rx_throughput_device_1",
+                "parse_function":"parse_throughput",
+                "parse_timestamp": { 
+                    "function":"parse_timestamp",
+                    "start":"2023-10-02 21:00:00",
+                    "stop":"2023-10-02 23:54:42"
+                },
+                "parse_events": {
+                    "event_x":"parse_event_x",
+                    "event_y":"parse_event_y"
+                },
+                "metric":"rx_throughput",
+                "report":1,
+                "plot":1,
+                "plot_info":{
+                    "x_label":"Timestamp",
+                    "y_label":"Data rate (Mbit/s)",
+                    "title":"Data rate over time"
+                }
+            }
+        ]
+
+```
+
+The functions to parse those events should be implemented in the `src/wapp_event_functions.py` file.
+
+The result (indicated by the vertical green lines):
+
+![image info](./examples/plots/rx_throughput_device_1.png)
+
+> [!CAUTION]
+> You can only use events in log files where timestamps are present. Additionally, the file line containing the event should also contain a timemstamp.
 
 ## Parse multiple metrics per data file
 
@@ -246,3 +304,8 @@ When WAPP is finished, it will make an `output` directory (if no such directory 
 
 ## Graphs
 
+![image info](./examples/plots/cpu_device_1.png)
+![image info](./examples/plots/cpu_device_2.png)
+![image info](./examples/plots/cpu_comparison.png)
+![image info](./examples/plots/ram_device_1.png)
+![image info](./examples/plots/rx_throughput_device_1.png)
