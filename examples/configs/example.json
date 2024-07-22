@@ -29,7 +29,11 @@
             {
                 "name":"rx_throughput_device_1",
                 "parse_function":"parse_throughput",
-                "parse_timestamp":"parse_timestamp",
+                "parse_timestamp": { 
+                    "function":"parse_timestamp",
+                    "start":"2023-10-02 21:39:42",
+                    "stop":"2023-10-02 21:42:42"
+                },
                 "metric":"rx_throughput",
                 "report":1,
                 "plot":1,
