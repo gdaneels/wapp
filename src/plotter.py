@@ -29,8 +29,12 @@ class Plotter:
     def _generate_plot(self, plot_name, data_file, metric, plot_info, add_x_axis_timestamps):
         path_plot = self.plots_dir + "/" + plot_name
 
-        # save all data
-        df_metric = self.dataframe.loc[(self.dataframe["file"] == data_file) & (self.dataframe["metric"] == metric)]
+        # filter all events
+        df_event = self.dataframe.loc[(self.dataframe["file"] == data_file) & (self.dataframe["metric"] == metric) & (self.dataframe["event"].notna())]
+        df_event.reset_index()
+
+        # save all data for the metric data
+        df_metric = self.dataframe.loc[(self.dataframe["file"] == data_file) & (self.dataframe["metric"] == metric) & (self.dataframe["event"].isna())]
         # reset the index, so the graph x axis starts from 0
         df_metric = df_metric.reset_index()
 
@@ -44,6 +48,12 @@ class Plotter:
 
         # make the plot
         plt.figure(figsize=(20, 5))
+
+        # plot events
+        if add_x_axis_timestamps:
+            for event_timestamp, event_data in df_event.groupby("timestamp"):
+                plt.axvline(event_timestamp, color='green')
+
         if add_x_axis_timestamps:
             sns.lineplot(x=df_metric["timestamp"], y=df_metric["value"], linewidth=2, marker=".", label=path_plot)
         else:
@@ -54,6 +64,7 @@ class Plotter:
         plt.legend(loc="upper left")
         plt.tight_layout()
         plt.savefig(path_plot)
+        plt.close()
 
     def _generate_plot_metric(self, data_file, metric_parse_configuration):
         if not self._need_plot(metric_parse_configuration):
