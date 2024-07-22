@@ -31,8 +31,12 @@
                 "parse_function":"parse_throughput",
                 "parse_timestamp": { 
                     "function":"parse_timestamp",
-                    "start":"2023-10-02 21:39:42",
-                    "stop":"2023-10-02 21:42:42"
+                    "start":"2023-10-02 21:00:00",
+                    "stop":"2023-10-02 23:54:42"
+                },
+                "parse_events": {
+                    "event_x":"parse_event_x",
+                    "event_y":"parse_event_y"
                 },
                 "metric":"rx_throughput",
                 "report":1,
