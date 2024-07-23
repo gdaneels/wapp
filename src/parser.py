@@ -1,6 +1,7 @@
 from src import wapp_functions
 from src import wapp_event_functions
 from datetime import datetime
+import pandas as pd
 
 class Parser:
     def __init__(self, parsed_data=None):
@@ -10,32 +11,44 @@ class Parser:
         self.parsed_data = parsed_data
 
     def _parse_valid_timestamp(self, metric_parse_config, line):
-        # parse timestamp
-        timestamp = None
+        """
+        Parses the line for the timestamp and check if it falls within the given range of the configuration.
+
+        :param metric_parse_config: the configuration for the metric
+        :param line: the line to be parsed
+        :return: the parsed timestamp and a boolean indicating if the timestamp is within the range
+        """ 
+
         timestamp_start = None
         timestamp_stop = None
         timestamp_within_range = True
-        if "parse_timestamp" in metric_parse_config:
-            # no need to check for "function" presence as this is checked by Configuration class
-            parse_timestamp = metric_parse_config["parse_timestamp"]["function"]
-            timestamp = getattr(wapp_functions, parse_timestamp)(line)
-            if timestamp is None:
-                return None, False
-            if "start" in metric_parse_config["parse_timestamp"]:
-                timestamp_start = getattr(wapp_functions, parse_timestamp)(metric_parse_config["parse_timestamp"]["start"])
-                if timestamp.time() < timestamp_start.time():
-                    timestamp_within_range = False
-            if "stop" in metric_parse_config["parse_timestamp"]:
-                timestamp_stop = getattr(wapp_functions, parse_timestamp)(metric_parse_config["parse_timestamp"]["stop"])
-                if timestamp.time() > timestamp_stop.time():
-                    timestamp_within_range = False
+
+        if "parse_timestamp" not in metric_parse_config:
+            return pd.NaT, False
+
+        # no need to check for "function" presence as this is checked by Configuration class
+        parse_timestamp = metric_parse_config["parse_timestamp"]["function"]
+        timestamp = getattr(wapp_functions, parse_timestamp)(line)
+        if timestamp is None:
+            return pd.NaT, False
+        
+        # check if the timestamp is within range
+        if "start" in metric_parse_config["parse_timestamp"]:
+            timestamp_start = getattr(wapp_functions, parse_timestamp)(metric_parse_config["parse_timestamp"]["start"])
+            if timestamp.time() < timestamp_start.time():
+                timestamp_within_range = False
+        if "stop" in metric_parse_config["parse_timestamp"]:
+            timestamp_stop = getattr(wapp_functions, parse_timestamp)(metric_parse_config["parse_timestamp"]["stop"])
+            if timestamp.time() > timestamp_stop.time():
+                timestamp_within_range = False
+
         return timestamp, timestamp_within_range
 
     def _parse_line(self, data_file, data_file_parse_config, line):
         # a parse configuration per data file can have multiple parse configurations per metric
         for metric_parse_config in data_file_parse_config:
             timestamp, timestamp_within_range = self._parse_valid_timestamp(metric_parse_config, line)
-            if timestamp is not None and not timestamp_within_range:
+            if timestamp is not pd.NaT and not timestamp_within_range:
                 return
 
             # parse metric

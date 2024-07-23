@@ -57,7 +57,7 @@ class Plotter:
         if add_x_axis_timestamps:
             sns.lineplot(x=df_metric["timestamp"], y=df_metric["value"], linewidth=2, marker=".", label=path_plot)
         else:
-            sns.lineplot(df_metric["value"], linewidth=1, marker=".", label=path_plot)
+            sns.lineplot(df_metric["value"], linewidth=2, marker=".", label=path_plot)
         plt.title(plot_title)
         plt.ylabel(y_label)
         plt.xlabel(x_label)
