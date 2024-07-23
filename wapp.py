@@ -15,7 +15,7 @@ class Wapp:
         self.name_reports_dir = "reports"
         self.name_plots_dir = "plots"
         self.path_configuration_file = path_configuration_file
-        self.path_output_dir = self._make_output_dir()
+        self.path_output_dir = self._make_output_dir(self.execution_timestamp)
         self.parsed_data = []
         self.dataframe = None
 
@@ -33,13 +33,13 @@ class Wapp:
         # initialize the Plotter with the configuration and dataframe
         self.plotter = Plotter(self.configuration.metrics(), self.configuration.plots(), self.dataframe, self.path_output_dir, self.name_plots_dir)
 
-    def _make_output_dir(self):
+    def _make_output_dir(self, exec_timestamp):
         path_output_dir = self.name_output_dir + "/" + os.path.basename(self.path_configuration_file).split(".")[0]
-        if not os.path.exists(path_output_dir):
-            os.makedirs(path_output_dir)
-            print(f"Created output dir {path_output_dir}.")
-        else:
-            raise Exception(f"Output directory {path_output_dir} exists already.")
+        if os.path.exists(path_output_dir):
+            path_output_dir += "-" + exec_timestamp
+            print(f"Output directory {path_output_dir} exists already, new name {path_output_dir}.")
+        os.makedirs(path_output_dir)
+        print(f"Created output dir {path_output_dir}.")
         return path_output_dir
 
     def get_data(self):

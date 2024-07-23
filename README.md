@@ -298,7 +298,7 @@ The input files needed to run the example, are:
 
 ## Output files
 
-When WAPP is finished, it will make an `output` directory (if no such directory exists yet). In that directory, it will create a subdirectory with the name of the configuration JSON file. In our case, the `example` directory that contains:
+When WAPP is finished, it will make an `output` directory. In that directory, it will create a subdirectory with the name of the configuration JSON file. If that name already exists, the timestamp of execution will be added to the directory name. In our case, the `example` directory that contains:
 - `plots` directory
 - `reports` directory
 
